@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>天气查询</title>
+		<style type="text/css">
+			* {
+				margin: 0px;
+				padding: 0px;
+			}
+			
+			.box {
+				width: 300px;
+				height: 300px;
+				margin: 50px auto;
+			}
+			
+			.box #LCity {
+				color: lightgray;
+				width: 200px;
+				line-height: 30px;
+				border: 1px solid lightgray;
+				border-radius: 5px;
+			}
+			
+			.box #btn {
+				width: 50px;
+				line-height: 30px;
+				border: 1px solid lightgray;
+				border-radius: 5px;
+			}
+		</style>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=HbUVYMUg6PwbOnXkztdgSQlQ"></script>
+		<script type="text/javascript" src="JS/jquery-3.1.1.min.js"></script>
+		<script type="text/javascript" src="JS/myajax.js"></script>
+		<script type="text/javascript" src="JS/underscore.js"></script>
+	</head>
+
+	<body>
+		<div class="box">
+			<p><span>您现在所在的位置是：</span><span id="city"></span></p>
+			<input type="text" id="LCity" placeholder="输入城市名查天气" />
+			<button id="btn">查询</button>
+		</div>
+		<script type="text/javascript">
+			//通过百度地图的功能得到默认地点的天气
+			var geolocation = new BMap.Geolocation();
+			//判断用户的设备是否支持定位
+			if(geolocation) {
+				geolocation.getCurrentPosition(success, error);
+			} else {
+				alert("您的设备不支持定位！！");
+			}
+			//成功执行的函数
+			function success(position) {
+				//得到当前位置的经纬度
+				var lng = position.point.lng;
+				var lat = position.point.lat;
+				var point = new BMap.Point(lng, lat);
+				//创建地址解析器
+				var geoc = new BMap.Geocoder();
+				//利用getLocation方法解析出地址，显示到DOM上
+				geoc.getLocation(point, function(rs) {
+					var addComp = rs.addressComponents;
+					var cityPosition = addComp.province + "=>" + addComp.city;
+					$("#city").html(cityPosition);
+					//将拿到的addComp.city去天气预报的接口查找具体数据
+					$.get("PHP/weather.php", {
+						"city": addComp.city
+					}, function(data) {
+//						console.log(data.result.today.weather);
+						//不同的天气加载对应的图片
+						$('<div></div>').insertAfter($('#btn'));
+						$(".box>div").css({
+							"width": "100px",
+							"height": "100px",
+							"margin-left": "100px"
+						});
+						switch(data.result.today.weather){
+							case "小雨":
+							$(".box>div").append('<img src="images/中雨.png" />');
+							break;
+							case "中雨":
+							$(".box>div").append('<img src="images/中雨.png" />');
+							break;
+							case "大雨":
+							$(".box>div").append('<img src="images/大雨.png" />');
+							break;
+							case "大雪":
+							$(".box>div").append('<img src="images/大雪.png" />');
+							break;
+							case "阴天":
+							$(".box>div").append('<img src="images/阴天.png" />');
+							break;
+							case "晴天":
+							$(".box>div").append('<img src="images/晴天.png" />');
+							break;
+							case "冰雹":
+							$(".box>div").append('<img src="images/冰雹.png" />');
+							break;
+							case "多云":
+							$(".box>div").append('<img src="images/多云.png" />');
+							break;
+							case "雷雨":
+							$(".box>div").append('<img src="images/雷雨.png" />');
+							break;
+						}
+					});
+				});
+			}
+			//错误执行的函数
+			function error() {
+				//错误状态码
+				//1.为1的时候，一般都是用户没有允许定位
+				//2.为2 的时候一般都是网络连接问题
+				//3.为3是链接超时，为0 的时候是未知错误
+				if(errorCode.code === 1) {
+					alert("test");
+				}
+			}
+			$("#btn").click(function() {
+				
+				var city = encodeURIComponent($("#LCity").val());
+				$.get("PHP/weather.php", {
+					"city": city
+				}, function(data) {
+					//不同的天气加载对应的图片
+					$('<div></div>').insertAfter($('#btn'));
+					$(".box>div").css({
+						"width": "100px",
+						"height": "100px",
+						"margin-left": "100px"
+					});
+					switch(data.result.today.weather){
+							case "小雨":
+							$(".box>div").append('<img src="images/中雨.png" />');
+							break;
+							case "中雨":
+							$(".box>div").append('<img src="images/中雨.png" />');
+							break;
+							case "大雨":
+							$(".box>div").append('<img src="images/大雨.png" />');
+							break;
+							case "大雪":
+							$(".box>div").append('<img src="images/大雪.png" />');
+							break;
+							case "阴天":
+							$(".box>div").append('<img src="images/阴天.png" />');
+							break;
+							case "晴天":
+							$(".box>div").append('<img src="images/晴天.png" />');
+							break;
+							case "冰雹":
+							$(".box>div").append('<img src="images/冰雹.png" />');
+							break;
+							case "多云":
+							$(".box>div").append('<img src="images/多云.png" />');
+							break;
+							case "雷雨":
+							$(".box>div").append('<img src="images/雷雨.png" />');
+							break;
+						}
+				});
+			});
+		</script>
+	</body>
+
+</html>
